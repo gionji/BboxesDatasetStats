@@ -3,8 +3,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 import statistics
-
-
+import argparse
 
 
 available_classes = {"multirotor" :  29,
@@ -411,42 +410,55 @@ def save_plot_as_png(figure, filename):
 ANNOTATION_PATH = '/media/gionji/New Volume/saab_viser_carla_dataset/data_review/new_batches/world_0_drones_1/out_bbox'
 yolov8_annotations_folder = '/content/drive/MyDrive/MDU/DatasetsStats/data/dvb_yolo_annotations'
 
-file_list_path = ''
+def main():
+    parser = argparse.ArgumentParser(description='Process JSON and YOLO annotations.')
+    parser.add_argument('file_list_path', type=str, help='Path to the file containing a list of folder paths.')
 
-# Parse JSON files in the specified annotation folder
-parsed_data = parse_json_files(ANNOTATION_PATH)
+    args = parser.parse_args()
+    
 
-#parse_json_files_from_list(file_list_path)
+    # Parse JSON files in the specified annotation folder
+    parsed_data = parse_json_files_from_list(args.file_list_path)
 
-
-### General stats
-# Print the bboxes stats
-# It prints the average width,height of bboxes. The average and median area.
-# It separates stats by all bboxes, regular (the bboxes present in the dataset) and removed.
-calculate_average_size_and_count(parsed_data)
-
-# It prints the simulation weather parameters distributions
-plot_metadata_distribution(parsed_data)
+    # Parse JSON files in the specified annotation folder
+    #parsed_data = parse_json_files(ANNOTATION_PATH)
 
 
-### It plots the bboxes area distribution
-##It can be filtered by class id and Presence(all, regular, removed)
+    ### General stats
+    # Print the bboxes stats
+    # It prints the average width,height of bboxes. The average and median area.
+    # It separates stats by all bboxes, regular (the bboxes present in the dataset) and removed.
+    calculate_average_size_and_count(parsed_data)
 
-# here we compare the regular areas
-bins = 160
-# multirotor
-plot_bbox_area_distribution(parsed_data, vehicle_class=out_classes['multirotor'], bbox_type='regular', n_bins=bins)
-# fixedwing
-plot_bbox_area_distribution(parsed_data, vehicle_class=out_classes['fixedwing'], bbox_type='regular', n_bins=bins)
-# bird
-plot_bbox_area_distribution(parsed_data, vehicle_class=out_classes['bird'], bbox_type='regular', n_bins=bins)
+    # It prints the simulation weather parameters distributions
+    plot_metadata_distribution(parsed_data)
 
 
-# Bboxes areas localization
-plot_bbox_positions(parsed_data, vehicle_class=out_classes['bird'], bbox_type='regular')
-plot_bbox_positions(parsed_data, vehicle_class=out_classes['bird'], bbox_type='removed')
-plot_bbox_positions(parsed_data, vehicle_class=out_classes['bird'], bbox_type='all')
+    ### It plots the bboxes area distribution
+    ##It can be filtered by class id and Presence(all, regular, removed)
 
-plot_bbox_positions(parsed_data, vehicle_class=out_classes['multirotor'], bbox_type='regular')
-plot_bbox_positions(parsed_data, vehicle_class=out_classes['fixedwing'] , bbox_type='regular')
-plot_bbox_positions(parsed_data, vehicle_class=out_classes['bird']      , bbox_type='regular')
+    # here we compare the regular areas
+    bins = 160
+    # multirotor
+    plot_bbox_area_distribution(parsed_data, vehicle_class=out_classes['multirotor'], bbox_type='regular', n_bins=bins)
+    # fixedwing
+    plot_bbox_area_distribution(parsed_data, vehicle_class=out_classes['fixedwing'], bbox_type='regular', n_bins=bins)
+    # bird
+    plot_bbox_area_distribution(parsed_data, vehicle_class=out_classes['bird'], bbox_type='regular', n_bins=bins)
+
+
+    # Bboxes areas localization
+    plot_bbox_positions(parsed_data, vehicle_class=out_classes['bird'], bbox_type='regular')
+    plot_bbox_positions(parsed_data, vehicle_class=out_classes['bird'], bbox_type='removed')
+    plot_bbox_positions(parsed_data, vehicle_class=out_classes['bird'], bbox_type='all')
+
+    plot_bbox_positions(parsed_data, vehicle_class=out_classes['multirotor'], bbox_type='regular')
+    plot_bbox_positions(parsed_data, vehicle_class=out_classes['fixedwing'] , bbox_type='regular')
+    plot_bbox_positions(parsed_data, vehicle_class=out_classes['bird']      , bbox_type='regular')
+    
+    
+    	
+if __name__ == "__main__":
+    main()
+    
+    
