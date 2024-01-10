@@ -377,6 +377,55 @@ def plot_bbox_heatmap(json_data_list, bins=40):
     # Save the plot as PNG
     save_plot_as_png(plt, "bbox_heatmap")
 
+def plot_bbox_count_distribution(json_data_list, bbox_type='all'):
+    # Dictionary to store the count of bounding boxes for each class in each image
+    bbox_count_by_class = {}
+
+    # Iterate through each parsed JSON
+    for json_data in json_data_list:
+        # Extract class information and bounding boxes based on the specified bbox_type
+        if bbox_type == 'all':
+            bboxes = json_data.get('bboxes', []) + json_data.get('removed_bboxes', [])
+        elif bbox_type == 'removed':
+            bboxes = json_data.get('removed_bboxes', [])
+        elif bbox_type == 'regular':
+            bboxes = json_data.get('bboxes', [])
+        else:
+            raise ValueError("Invalid bbox_type. Choose 'all', 'removed', or 'regular'.")
+
+        vehicle_class = json_data.get('vehicle_class', []) + json_data.get('removed_vehicle_class', [])
+
+        # Count the number of bounding boxes for each class in this image
+        bbox_count = {}
+        for class_label in vehicle_class:
+            bbox_count[class_label] = bbox_count.get(class_label, 0) + 1
+
+        # Update the dictionary for each class
+        for class_label, count in bbox_count.items():
+            if class_label not in bbox_count_by_class:
+                bbox_count_by_class[class_label] = []
+
+            bbox_count_by_class[class_label].append(count)
+
+    # Determine the number of classes and create subplots
+    num_classes = len(bbox_count_by_class)
+    fig, axes = plt.subplots(1, num_classes, figsize=(18, 4), sharey=True)
+
+    # Plot each class on its own subplot
+    for i, (class_label, counts) in enumerate(bbox_count_by_class.items()):
+        axes[i].hist(counts, bins=range(1, max(counts) + 2), alpha=0.7, label=f'Class {class_label}', color=plt.cm.get_cmap('tab10')(i))
+        axes[i].set_title(f'Class {class_label}')
+        axes[i].set_xlabel('Number of Bboxes')
+        axes[i].set_ylabel('Frequency')
+        axes[i].legend()
+        axes[i].grid(True)
+
+    plt.suptitle(f'Distribution of Bbox Counts - Type {bbox_type.capitalize()}', y=1.02)
+    #plt.show()
+    # Save the plot as PNG
+    save_plot_as_png(plt, f"bbox_count_distribution_all_classes_type_{bbox_type}")
+
+
 
 def print_all_classes_ids(json_data_list):
     all_classes = set()
@@ -456,8 +505,11 @@ def main():
     plot_bbox_positions(parsed_data, vehicle_class=out_classes['fixedwing'] , bbox_type='regular')
     plot_bbox_positions(parsed_data, vehicle_class=out_classes['bird']      , bbox_type='regular')
     
-    
-    	
+    plot_bbox_count_distribution(parsed_data, bbox_type='regular')
+    plot_bbox_count_distribution(parsed_data, bbox_type='removed')  
+    plot_bbox_count_distribution(parsed_data, bbox_type='all')
+
+
 if __name__ == "__main__":
     main()
     
