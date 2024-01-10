@@ -386,14 +386,15 @@ def plot_bbox_count_distribution(json_data_list, bbox_type='all'):
         # Extract class information and bounding boxes based on the specified bbox_type
         if bbox_type == 'all':
             bboxes = json_data.get('bboxes', []) + json_data.get('removed_bboxes', [])
+            vehicle_class = json_data.get('vehicle_class', []) + json_data.get('removed_vehicle_class', [])
         elif bbox_type == 'removed':
             bboxes = json_data.get('removed_bboxes', [])
+            vehicle_class = json_data.get('removed_vehicle_class', [])
         elif bbox_type == 'regular':
             bboxes = json_data.get('bboxes', [])
+            vehicle_class = json_data.get('vehicle_class', [])
         else:
             raise ValueError("Invalid bbox_type. Choose 'all', 'removed', or 'regular'.")
-
-        vehicle_class = json_data.get('vehicle_class', []) + json_data.get('removed_vehicle_class', [])
 
         # Count the number of bounding boxes for each class in this image
         bbox_count = {}
